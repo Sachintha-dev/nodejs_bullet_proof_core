@@ -1,0 +1,159 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model Version{
+  @@map(name: "version")
+  id Int  @id @default(autoincrement())
+  message String  @db.VarChar(255)
+  lang String  @db.VarChar(255)
+  version String  @db.VarChar(255)
+  inReview Boolean @default(false)
+  reviewVersion String  @db.VarChar(255)
+  platform String  @db.VarChar(255)
+  created_at DateTime @default(now())
+  updated_at DateTime? @updatedAt
+  deleted DateTime?
+  is_deleted Boolean? @default(false) 
+}
+
+
+model Ds{
+  @@map(name: "ds")
+
+  id Int  @id @default(autoincrement())
+  en String?  @db.VarChar(255)
+  si String? @db.VarChar(255)
+  ta String?  @db.VarChar(255)
+  ds_code String?  @db.VarChar(255)
+  user User[]
+  district_code String?  @db.VarChar(255)
+  created_at DateTime @default(now())
+  updated_at DateTime? @updatedAt
+  deleted DateTime?
+  is_deleted Boolean? @default(false) 
+}
+
+model District{
+  @@map(name: "district")
+
+  id Int  @id @default(autoincrement())
+  en String?  @db.VarChar(255)
+  si String? @db.VarChar(255)
+  ta String?  @db.VarChar(255)
+  user User[]
+  district_code String?  @db.VarChar(255)
+  created_at DateTime @default(now())
+  updated_at DateTime? @updatedAt
+  deleted DateTime?
+  is_deleted Boolean? @default(false) 
+}
+
+
+model User_Bank{
+  @@map(name: "user_bank")
+
+  id Int  @id @default(autoincrement())
+  accountName String?  @db.VarChar(255)
+  accountNo String? @db.VarChar(255)
+  bank String?  @db.VarChar(255)
+  branch String?  @db.VarChar(255)
+  User User? @relation(fields: [userId], references: [id])
+  userId Int?
+  created_at DateTime @default(now())
+  updated_at DateTime? @updatedAt
+  deleted DateTime?
+  is_deleted Boolean? @default(false) 
+}
+
+
+model User_Card{
+  @@map(name: "user_card")
+
+  id Int  @id @default(autoincrement())
+  cardStatus Boolean? @default(true) 
+  issuedDate DateTime?
+  expiredIN DateTime?
+  User User? @relation(fields: [userId], references: [id])
+  userId Int?
+  created_at DateTime @default(now())
+  updated_at DateTime? @updatedAt
+  deleted DateTime?
+  is_deleted Boolean? @default(false) 
+}
+
+model Role{
+  @@map(name: "role")
+
+  id Int  @id @default(autoincrement())
+  name String
+  displayName String?
+  user User[]
+  created_at DateTime @default(now())
+  updated_at DateTime? @updatedAt
+  deleted DateTime?
+  is_deleted Boolean? @default(false) 
+}
+
+model User{
+  @@map(name: "users")
+
+  id Int  @id @default(autoincrement())
+  uuid String  @default(uuid()) @db.VarChar(100)
+  fname String  @db.VarChar(255)
+  lname String  @db.VarChar(255)
+  callname String?  @db.VarChar(255)
+  membershipNo String  @db.VarChar(50) @unique
+  nic String @unique @db.VarChar(100)
+  email String @unique @db.VarChar(100)
+  contactNo String @unique @db.VarChar(100)
+  dob DateTime?
+  registeredDate DateTime? @default(now())
+  gender GenderEnumType?
+  marital MaritalEnumType?
+  mcode String @db.VarChar(255)
+  status Boolean? @default(true) 
+  verified Boolean? @default(false) 
+  password String
+  role Role @relation(fields: [roleId], references: [id])
+  roleId Int
+  verificationCode String? @db.VarChar(255) @unique
+  created_at DateTime @default(now())
+  updated_at DateTime? @updatedAt
+  deleted DateTime?
+  created_by String?
+  created_by_name String?
+  address String?
+  ds Ds? @relation(fields: [dsId], references: [id])
+  district District? @relation(fields: [districtId], references: [id])
+  dsId Int?
+  districtId Int?
+  provider String?
+  userBank User_Bank[]
+  userCard User_Card[]
+  passwordResetToken String?
+  passwordResetAt DateTime?
+  is_deleted Boolean? @default(false) 
+  @@unique([email,nic,verificationCode,membershipNo, passwordResetToken])
+  @@index([email, verificationCode,passwordResetToken])
+}
+
+enum GenderEnumType {
+  male
+  female
+}
+
+enum MaritalEnumType {
+  married
+  single
+  divorced
+}
